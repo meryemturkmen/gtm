@@ -2,7 +2,7 @@
 
 export type Db = {
   select: <T>(table: string, query: string) => Promise<T[]>
-  insert: <T>(table: string, rows: object | object[], opts?: { returning?: boolean; ignoreDuplicates?: boolean }) => Promise<T[]>
+  insert: <T>(table: string, rows: object | object[], opts?: { returning?: boolean }) => Promise<T[]>
   update: (table: string, query: string, patch: object) => Promise<void>
   rpc: <T>(fn: string, args: object) => Promise<T>
 }
@@ -24,12 +24,9 @@ export function makeDb(url: string, serviceKey: string, fetchImpl: typeof fetch 
   }
   return {
     select: (table, query) => call(`${table}?${query}`),
-    insert: (table, rows, { returning = true, ignoreDuplicates = false } = {}) =>
-      call(table, {
-        method: 'POST', body: JSON.stringify(rows),
-        prefer: [returning ? 'return=representation' : 'return=minimal', ignoreDuplicates ? 'resolution=ignore-duplicates' : '']
-          .filter(Boolean).join(','),
-      }).then(r => r ?? []),
+    insert: (table, rows, { returning = true } = {}) =>
+      call(table, { method: 'POST', body: JSON.stringify(rows), prefer: returning ? 'return=representation' : 'return=minimal' })
+        .then(r => r ?? []),
     update: (table, query, patch) =>
       call(`${table}?${query}`, { method: 'PATCH', body: JSON.stringify(patch), prefer: 'return=minimal' }),
     rpc: (fn, args) => call(`rpc/${fn}`, { method: 'POST', body: JSON.stringify(args) }),

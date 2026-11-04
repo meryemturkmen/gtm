@@ -13,7 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
+import { Route as AppDealsRouteImport } from './routes/_app/deals'
+import { Route as AppPlaybooksRouteImport } from './routes/_app/playbooks'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppCompaniesIdRouteImport } from './routes/_app/companies_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,9 +37,24 @@ const AppCompaniesRoute = AppCompaniesRouteImport.update({
   path: '/companies',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDealsRoute = AppDealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlaybooksRoute = AppPlaybooksRouteImport.update({
+  id: '/playbooks',
+  path: '/playbooks',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCompaniesIdRoute = AppCompaniesIdRouteImport.update({
+  id: '/companies_/$id',
+  path: '/companies/$id',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -44,13 +62,19 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/companies': typeof AppCompaniesRoute
+  '/deals': typeof AppDealsRoute
+  '/playbooks': typeof AppPlaybooksRoute
   '/settings': typeof AppSettingsRoute
+  '/companies/$id': typeof AppCompaniesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/companies': typeof AppCompaniesRoute
+  '/deals': typeof AppDealsRoute
+  '/playbooks': typeof AppPlaybooksRoute
   '/settings': typeof AppSettingsRoute
+  '/companies/$id': typeof AppCompaniesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,15 +82,40 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/companies': typeof AppCompaniesRoute
+  '/_app/deals': typeof AppDealsRoute
+  '/_app/playbooks': typeof AppPlaybooksRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/companies_/$id': typeof AppCompaniesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/companies' | '/settings'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/companies'
+    | '/deals'
+    | '/playbooks'
+    | '/settings'
+    | '/companies/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/companies' | '/settings'
+  to:
+    | '/'
+    | '/login'
+    | '/companies'
+    | '/deals'
+    | '/playbooks'
+    | '/settings'
+    | '/companies/$id'
   id:
-    '__root__' | '/' | '/_app' | '/login' | '/_app/companies' | '/_app/settings'
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/login'
+    | '/_app/companies'
+    | '/_app/deals'
+    | '/_app/playbooks'
+    | '/_app/settings'
+    | '/_app/companies_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,6 +154,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/deals': {
+      id: '/_app/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof AppDealsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/playbooks': {
+      id: '/_app/playbooks'
+      path: '/playbooks'
+      fullPath: '/playbooks'
+      preLoaderRoute: typeof AppPlaybooksRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -112,17 +175,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/companies_/$id': {
+      id: '/_app/companies_/$id'
+      path: '/companies/$id'
+      fullPath: '/companies/$id'
+      preLoaderRoute: typeof AppCompaniesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppCompaniesRoute: typeof AppCompaniesRoute
+  AppDealsRoute: typeof AppDealsRoute
+  AppPlaybooksRoute: typeof AppPlaybooksRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppCompaniesIdRoute: typeof AppCompaniesIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
+  AppDealsRoute: AppDealsRoute,
+  AppPlaybooksRoute: AppPlaybooksRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppCompaniesIdRoute: AppCompaniesIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

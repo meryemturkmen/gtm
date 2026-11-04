@@ -15,6 +15,8 @@ export const Route = createFileRoute('/_app')({
 
 const nav = [
   { to: '/companies', label: 'Companies' },
+  { to: '/deals', label: 'Deals' },
+  { to: '/playbooks', label: 'Playbooks' },
   { to: '/settings', label: 'Settings' },
 ] as const
 

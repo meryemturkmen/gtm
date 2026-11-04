@@ -4,6 +4,7 @@
 import { fetchHome, providers, type Page, type ProviderCtx } from './providers/index.ts'
 import { isEmpty, parseSpec, pick, unwrapAi } from './waterfall.ts'
 import type { Db } from './db.ts'
+import { matches, sign, type Action, type Condition } from './playbooks.ts'
 import type { AiConfig, CellMeta, Company, Job, Property, ProviderConfig } from './types.ts'
 
 export const BATCH = 8
@@ -74,6 +75,7 @@ async function runWaterfall(db: Db, job: Job, company: Company, property: Proper
     if (!isEmpty(value)) {
       await setCell(db, job, value, { status: 'done', provider: spec, run_id: run.id, at: now() })
       await finish(db, job, 'done')
+      await runPlaybooks(db, ctx, job, company, value)
       return
     }
   }
@@ -91,8 +93,7 @@ async function runAi(db: Db, job: Job, company: Company, property: Property, ctx
   const missing = inputs.filter(p => p.source !== 'input' && !company.meta[p.key] && isEmpty(company.props[p.key])).map(p => p.key)
   if (missing.length) {
     if (job.attempts >= MAX_ATTEMPTS) throw new Error(`inputs never arrived: ${missing.join(', ')}`)
-    await db.insert('jobs', missing.map(key => ({ workspace_id: job.workspace_id, company_id: job.company_id, property_key: key })),
-      { returning: false, ignoreDuplicates: true })
+    await db.rpc('enqueue_jobs', { p_company: job.company_id, p_keys: missing })
     await db.update('jobs', `id=eq.${job.id}`, { status: 'queued', run_after: new Date(Date.now() + WAIT_FOR_INPUTS_MS).toISOString() })
     return
   }
@@ -101,6 +102,7 @@ async function runAi(db: Db, job: Job, company: Company, property: Property, ctx
   const empty = isEmpty(value)
   await setCell(db, job, empty ? null : value, { status: empty ? 'empty' : 'done', provider: 'ai', run_id: run.id, at: now() })
   await finish(db, job, 'done')
+  if (!empty) await runPlaybooks(db, ctx, job, company, value)
 }
 
 /** Runs a provider once per batch and company, or reuses a recent successful run. Always leaves a `runs` row behind. */
@@ -131,6 +133,57 @@ async function executeOnce(db: Db, job: Job, company: Company, providerName: str
     const message = e instanceof Error ? e.message : String(e)
     await db.insert('runs', { ...base, status: 'failed', error: message, duration_ms: Date.now() - started }, { returning: false })
     throw new Error(`${providerName}: ${message}`)
+  }
+}
+
+type Playbook = { id: string; name: string; condition: Condition; actions: Action[] }
+
+/** Fires every enabled playbook listening on this column. Each fires at most once per company (unique index). */
+async function runPlaybooks(db: Db, ctx: ProviderCtx, job: Job, company: Company, value: unknown) {
+  const playbooks = await db.select<Playbook>('playbooks',
+    `workspace_id=eq.${job.workspace_id}&trigger_key=eq.${job.property_key}&enabled=is.true&select=id,name,condition,actions`)
+  for (const pb of playbooks) {
+    const matched = matches(pb.condition, value)
+    const base = { workspace_id: job.workspace_id, playbook_id: pb.id, company_id: company.id, matched }
+    if (!matched) { await db.insert('playbook_runs', base, { returning: false }); continue }
+    // Claim the once-per-company slot first; a duplicate insert means another run already fired it.
+    try { await db.insert('playbook_runs', { ...base, result: [] }, { returning: false }) } catch { continue }
+    const result: unknown[] = []
+    let error: string | null = null
+    try {
+      for (const a of pb.actions) result.push(await runAction(db, ctx, job, company, a, value))
+    } catch (e) { error = e instanceof Error ? e.message : String(e) }
+    await db.update('playbook_runs', `playbook_id=eq.${pb.id}&company_id=eq.${company.id}&matched=is.true`, { result, error })
+    await db.insert('activities', {
+      workspace_id: job.workspace_id, company_id: company.id, kind: 'system',
+      body: error ? `Playbook "${pb.name}" failed: ${error}` : `Playbook "${pb.name}" fired on ${job.property_key}`,
+      meta: { playbook_id: pb.id, property_key: job.property_key, result },
+    }, { returning: false })
+  }
+}
+
+async function runAction(db: Db, ctx: ProviderCtx, job: Job, company: Company, a: Action, value: unknown) {
+  switch (a.type) {
+    case 'create_deal': {
+      const title = a.title.replace(/\{\{\s*([a-z0-9_]+)\s*\}\}/gi, (_, k: string) => String(company.props[k] ?? company.domain))
+      const id = await db.rpc<string>('playbook_create_deal', { p_company: company.id, p_stage: a.stage_id, p_title: title })
+      return { type: a.type, deal_id: id }
+    }
+    case 'set_property':
+      await db.rpc('set_cell', { p_company: company.id, p_key: a.key, p_value: a.value, p_meta: { status: 'done', provider: 'playbook', at: now() } })
+      return { type: a.type, key: a.key }
+    case 'enqueue':
+      await db.rpc('enqueue_jobs', { p_company: company.id, p_keys: a.keys })
+      return { type: a.type, keys: a.keys }
+    case 'webhook': {
+      const body = JSON.stringify({ event: 'playbook', property: job.property_key, value, company: { id: company.id, domain: company.domain, props: company.props }, at: now() })
+      const secret = ctx.env.WEBHOOK_SECRET ?? ''
+      const res = await ctx.fetch(a.url, {
+        method: 'POST', body, signal: AbortSignal.timeout(10_000),
+        headers: { 'content-type': 'application/json', 'x-gmt-signature': secret ? await sign(secret, body) : 'unsigned' },
+      })
+      return { type: a.type, status: res.status }
+    }
   }
 }
 

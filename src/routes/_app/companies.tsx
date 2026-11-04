@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useWorkspace } from '../_app'
 import { PAGE_SIZE, enqueue, useCompanies, useOpenJobs, useProperties, useRealtime } from '../../lib/queries'
@@ -61,7 +61,7 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
             <tbody>
               {rows.map(c => (
                 <tr key={c.id} className="border-b border-separator hover:bg-surface-2/50 h-8">
-                  <td className="px-3 font-medium truncate max-w-56">{c.domain}</td>
+                  <td className="px-3 font-medium truncate max-w-56"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
                   {properties.data?.map(p => (
                     <td key={p.id} className="p-0 max-w-72 border-l border-separator/60">
                       <Cell company={c} property={p} meta={c.meta[p.key]}
