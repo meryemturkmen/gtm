@@ -6,7 +6,7 @@ name: Deploy Supabase
 on:
   push:
     branches: [main]
-    paths: ['supabase/**', 'shared/**']
+    paths: ['supabase/**']
   workflow_dispatch:
 
 jobs:

@@ -7,6 +7,6 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 export default defineConfig({
   plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
   test: {
-    include: ['shared/**/*.test.ts', 'src/**/*.test.ts'],
+    include: ['supabase/functions/_shared/**/*.test.ts', 'src/**/*.test.ts'],
   },
 })

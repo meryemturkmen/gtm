@@ -63,3 +63,7 @@
   }
   .card { @apply bg-surface rounded-card border border-separator; }
 }
+
+@layer components {
+  .th { @apply text-left font-medium text-label-2 h-8 px-1 border-b border-separator whitespace-nowrap; }
+}

@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import type { Workspace } from '../../shared/types.ts'
+import type { Workspace } from '../../supabase/functions/_shared/types.ts'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {

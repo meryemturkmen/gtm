@@ -9,7 +9,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "worker": "node scripts/worker.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
