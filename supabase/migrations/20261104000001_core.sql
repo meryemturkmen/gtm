@@ -161,7 +161,10 @@ begin
     (ws.id, 'email_provider', 'Email provider', 'text',    'provider', '{"providers": ["email_provider.provider"]}', 5),
     (ws.id, 'hiring',         'Hiring',         'boolean', 'provider', '{"providers": ["hiring_signal.hiring"]}', 6),
     (ws.id, 'linkedin',       'LinkedIn',       'url',     'provider', '{"providers": ["website_meta.linkedin"]}', 7),
-    (ws.id, 'owner_notes',    'Notes',          'text',    'input',    '{}', 8);
+    (ws.id, 'summary', 'Summary', 'text', 'ai', $j${"prompt":"Company {{domain}} ({{name}}). Website description: {{description}}. Tech stack: {{tech_stack}}. Hiring: {{hiring}}.\nIn two plain sentences, what does this company sell and to whom?","schema":{"type":"object","properties":{"text":{"type":"string"}},"required":["text"],"additionalProperties":false},"uses":["name","description","tech_stack","hiring"],"auto":false}$j$, 8),
+    (ws.id, 'icp_score', 'ICP score', 'json', 'ai', $j${"prompt":"Ideal customer profile: {{icp}}\n\nCompany {{domain}}: {{summary}} Email provider: {{email_provider}}. Tech stack: {{tech_stack}}. Hiring: {{hiring}}.\nScore 0-100 how well this company fits the profile and give the main reason in one sentence.","schema":{"type":"object","properties":{"score":{"type":"integer","minimum":0,"maximum":100},"reason":{"type":"string"}},"required":["score","reason"],"additionalProperties":false},"uses":["summary","email_provider","tech_stack","hiring"],"auto":false}$j$, 9),
+    (ws.id, 'first_line', 'First line', 'text', 'ai', $j${"prompt":"Write one specific, non-salesy opening sentence for a cold email to {{name}} ({{domain}}) based on: {{summary}} Hiring: {{hiring}}. Mention something concrete about them. No greeting, max 25 words.","schema":{"type":"object","properties":{"text":{"type":"string"}},"required":["text"],"additionalProperties":false},"uses":["name","summary","hiring"],"auto":false}$j$, 10),
+    (ws.id, 'owner_notes',    'Notes',          'text',    'input',    '{}', 11);
   return ws;
 end $$;
 

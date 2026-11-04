@@ -64,7 +64,7 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
                   <td className="px-3 font-medium truncate max-w-56">{c.domain}</td>
                   {properties.data?.map(p => (
                     <td key={p.id} className="p-0 max-w-72 border-l border-separator/60">
-                      <Cell property={p} value={c.props[p.key]} meta={c.meta[p.key]}
+                      <Cell company={c} property={p} meta={c.meta[p.key]}
                         job={jobs.data?.[`${c.id}:${p.key}`]} onOpen={() => setOpen({ company: c, property: p })} />
                     </td>
                   ))}

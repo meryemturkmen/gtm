@@ -43,7 +43,7 @@ export const ai: Provider = {
     const content = json.choices[0]?.message.content ?? ''
     let data: Record<string, unknown>
     try { data = JSON.parse(content) } catch { throw new Error(`LLM returned non-JSON: ${content.slice(0, 120)}`) }
-    const tokens = json.usage?.total_tokens ?? 0
+    const tokens = Math.round(json.usage?.total_tokens ?? 0)
     const perMillion = Number(ctx.env.QWEN_COST_PER_MILLION_CENTS ?? 0)
     return { data: { ...data, _prompt: prompt }, tokens, cost_cents: (tokens / 1_000_000) * perMillion }
   },
