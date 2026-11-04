@@ -20,7 +20,7 @@ Read `docs/LOG.md` (decisions, state) before changing anything. Append to it whe
 
 ## Secrets
 
-Never commit keys. Browser gets only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Edge functions read `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL` from Supabase secrets.
+Never commit keys. Browser gets only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Edge functions read `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL` and `WEBHOOK_SECRET` from Supabase secrets. The demo login credentials in `VITE_DEMO_*` are public by design (workspace flagged is_demo, swept hourly).
 
 ## Commands
 

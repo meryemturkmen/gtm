@@ -14,6 +14,13 @@ function Login() {
   const [email, setEmail] = useState('')
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [error, setError] = useState('')
+  const demo = import.meta.env.VITE_DEMO_EMAIL && import.meta.env.VITE_DEMO_PASSWORD
+
+  async function demoLogin() {
+    setState('sending')
+    const { error } = await supabase.auth.signInWithPassword({ email: import.meta.env.VITE_DEMO_EMAIL, password: import.meta.env.VITE_DEMO_PASSWORD })
+    if (error) { setError(error.message); setState('error') } else window.location.assign('/dashboard')
+  }
 
   async function send(e: React.FormEvent) {
     e.preventDefault()
@@ -45,6 +52,11 @@ function Login() {
             <button className="btn btn-primary justify-center" disabled={state === 'sending'}>
               {state === 'sending' ? 'Sending…' : 'Send link'}
             </button>
+            {demo && (
+              <button type="button" className="btn justify-center" disabled={state === 'sending'} onClick={demoLogin}>
+                Try the demo workspace
+              </button>
+            )}
           </>
         )}
       </form>

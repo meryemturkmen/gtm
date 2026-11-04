@@ -5,6 +5,7 @@ import { PAGE_SIZE, enqueue, useCompanies, useOpenJobs, useProperties, useRealti
 import { Cell } from '../../components/Cell'
 import { RunSheet } from '../../components/RunSheet'
 import { AddCompaniesSheet } from '../../components/AddCompaniesSheet'
+import { toCsv } from '../../lib/csv'
 import type { Company, Property } from '../../../supabase/functions/_shared/types.ts'
 
 export const Route = createFileRoute('/_app/companies')({ component: CompaniesPage })
@@ -38,6 +39,7 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
         <span className="text-label-2">{count}{openCount > 0 && ` · ${openCount} running`}</span>
         <input type="search" className="input ml-auto w-56" placeholder="Filter by domain" value={search}
           onChange={e => { setSearch(e.target.value); setPage(0) }} aria-label="Filter by domain" />
+        <button className="btn" disabled={rows.length === 0} onClick={() => exportCsv(rows, properties.data ?? [])}>Export CSV</button>
         <button className="btn btn-primary" onClick={() => setAdding(true)}>Add companies</button>
       </header>
 
@@ -50,7 +52,7 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
           <table className="border-collapse w-max min-w-full">
             <thead className="sticky top-0 z-[5] bg-surface-2">
               <tr>
-                <th className="th w-56">Domain</th>
+                <th className="th w-56 sticky left-0 bg-surface-2 z-[6]">Domain</th>
                 {properties.data?.map(p => (
                   <th key={p.id} className="th">
                     <ColumnHeader property={p} rows={rows} />
@@ -61,7 +63,7 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
             <tbody>
               {rows.map(c => (
                 <tr key={c.id} className="border-b border-separator hover:bg-surface-2/50 h-8">
-                  <td className="px-3 font-medium truncate max-w-56"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
+                  <td className="px-3 font-medium truncate max-w-56 sticky left-0 bg-surface z-[4]"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
                   {properties.data?.map(p => (
                     <td key={p.id} className="p-0 max-w-72 border-l border-separator/60">
                       <Cell company={c} property={p} meta={c.meta[p.key]}
@@ -115,6 +117,16 @@ function MenuButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return <button type="button" {...props}
     className="w-full text-left px-2 py-1 rounded-ctl hover:bg-accent hover:text-accent-fg disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-label"
     onClick={e => { props.onClick?.(e); (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open') }} />
+}
+
+/** shortcut: exports the current page (50 rows); use the REST API for a full dump. */
+function exportCsv(rows: Company[], properties: Property[]) {
+  const csv = toCsv(['domain', ...properties.map(p => p.key)], rows.map(r => [r.domain, ...properties.map(p => r.props[p.key])]))
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+  a.download = `companies-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(a.href)
 }
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {

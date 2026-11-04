@@ -17,3 +17,15 @@ Decisions and state, newest first. Keep entries short.
 - Local Supabase config disables Studio, Analytics, Storage and the edge runtime to keep memory low. Re-enable per need in `supabase/config.toml`.
 - Provider runs are cached per company for `cacheHours` via the `runs` table, so several columns fed by one provider share one HTTP fetch.
 - Migrations are still editable: nothing is deployed yet. From the first cloud deploy on, only add new files.
+
+## 2026-11-04 — Phases 2–4: AI columns, CRM core, API, dashboard
+
+- AI columns are `auto: false` by default: new rows get the free providers immediately, AI runs only from the column menu or a playbook (cost control). The three seeded AI columns (Summary, ICP score, First line) reference each other; the worker enriches dependencies first and requeues.
+- Playbooks run inside the worker after a cell write (ADR 0004). Default playbook: ICP ≥ 70 → deal in Qualified + run First line.
+- Worker-only RPCs (`claim_jobs`, `set_cell`, `enqueue_jobs`, `playbook_create_deal`, `resolve_api_key`, `ingest_companies`) have EXECUTE revoked from `authenticated`; only the service role reaches them.
+- Postgres partial unique indexes cannot be targeted by PostgREST's `resolution=ignore-duplicates`; idempotent inserts therefore go through SQL functions with `on conflict … where`.
+- API keys: `gmt_` + 48 hex chars, only the SHA-256 is stored, plaintext shown once.
+- Demo workspace: `workspaces.is_demo` + hourly sweep of companies older than 24 h; login button appears when `VITE_DEMO_*` are set.
+- Skipped on purpose: saved views, workspace switcher, virtualised table (50 rows per page is enough for a demo). Export covers the current page.
+- HIG review merged into one pass at the end of Phase 4 instead of two passes (same findings, less churn). Local tooling: Playwright in the scratchpad takes the screenshots in `docs/screenshots/`.
+- Deno is not installed on the build machine (no Homebrew); `deno check` of the edge functions runs in CI only.

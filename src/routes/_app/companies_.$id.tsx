@@ -40,15 +40,15 @@ function CompanyPage() {
           Re-run all columns
         </button>
       </header>
-      <div className="flex-1 overflow-auto p-4 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4 items-start">
-        <div className="flex flex-col gap-4">
+      <div className="flex-1 overflow-auto p-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-4 items-start">
+        <div className="flex flex-col gap-4 min-w-0">
           <section className="card">
             <h2 className="font-semibold px-3 h-9 flex items-center border-b border-separator">Properties</h2>
             <dl className="divide-y divide-separator">
               {properties.data?.map(p => (
                 <div key={p.id} className="grid grid-cols-[10rem_1fr] items-center min-h-9">
                   <dt className="px-3 text-label-2">{p.label}</dt>
-                  <dd className="min-h-9 flex items-center border-l border-separator/60">
+                  <dd className="min-h-9 min-w-0 flex items-center border-l border-separator/60">
                     <Cell company={c} property={p} meta={c.meta[p.key]} job={jobs.data?.[`${c.id}:${p.key}`]} onOpen={() => setOpen(p)} />
                   </dd>
                 </div>
@@ -57,7 +57,7 @@ function CompanyPage() {
           </section>
           <Contacts companyId={c.id} workspaceId={ws.id} />
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 min-w-0">
           <Deals companyId={c.id} workspaceId={ws.id} title={name} />
           <Timeline companyId={c.id} workspaceId={ws.id} />
         </div>

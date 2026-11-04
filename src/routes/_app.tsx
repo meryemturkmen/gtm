@@ -14,6 +14,7 @@ export const Route = createFileRoute('/_app')({
 })
 
 const nav = [
+  { to: '/dashboard', label: 'Dashboard' },
   { to: '/companies', label: 'Companies' },
   { to: '/deals', label: 'Deals' },
   { to: '/playbooks', label: 'Playbooks' },

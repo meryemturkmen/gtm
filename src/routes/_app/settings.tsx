@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWorkspace } from '../_app'
 import { supabase } from '../../lib/supabase'
 import { useProperties } from '../../lib/queries'
+import { ApiKeys } from '../../components/ApiKeys'
 import { providerCatalog } from '../../../supabase/functions/_shared/providers/index.ts'
 import { aiSchemas } from '../../../supabase/functions/_shared/waterfall.ts'
 import type { Property, PropertyType } from '../../../supabase/functions/_shared/types.ts'
@@ -17,6 +18,7 @@ function SettingsPage() {
       <h1 className="text-lg font-semibold">Settings</h1>
       <IcpSection workspaceId={ws.id} icp={ws.icp} />
       <ColumnsSection workspaceId={ws.id} />
+      <ApiKeys workspaceId={ws.id} />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppDealsRouteImport } from './routes/_app/deals'
 import { Route as AppPlaybooksRouteImport } from './routes/_app/playbooks'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
@@ -35,6 +36,11 @@ const LoginRoute = LoginRouteImport.update({
 const AppCompaniesRoute = AppCompaniesRouteImport.update({
   id: '/companies',
   path: '/companies',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDealsRoute = AppDealsRouteImport.update({
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/companies': typeof AppCompaniesRoute
+  '/dashboard': typeof AppDashboardRoute
   '/deals': typeof AppDealsRoute
   '/playbooks': typeof AppPlaybooksRoute
   '/settings': typeof AppSettingsRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/companies': typeof AppCompaniesRoute
+  '/dashboard': typeof AppDashboardRoute
   '/deals': typeof AppDealsRoute
   '/playbooks': typeof AppPlaybooksRoute
   '/settings': typeof AppSettingsRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/companies': typeof AppCompaniesRoute
+  '/_app/dashboard': typeof AppDashboardRoute
   '/_app/deals': typeof AppDealsRoute
   '/_app/playbooks': typeof AppPlaybooksRoute
   '/_app/settings': typeof AppSettingsRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/companies'
+    | '/dashboard'
     | '/deals'
     | '/playbooks'
     | '/settings'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/companies'
+    | '/dashboard'
     | '/deals'
     | '/playbooks'
     | '/settings'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/companies'
+    | '/_app/dashboard'
     | '/_app/deals'
     | '/_app/playbooks'
     | '/_app/settings'
@@ -154,6 +166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/deals': {
       id: '/_app/deals'
       path: '/deals'
@@ -187,6 +206,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCompaniesRoute: typeof AppCompaniesRoute
+  AppDashboardRoute: typeof AppDashboardRoute
   AppDealsRoute: typeof AppDealsRoute
   AppPlaybooksRoute: typeof AppPlaybooksRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -195,6 +215,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
+  AppDashboardRoute: AppDashboardRoute,
   AppDealsRoute: AppDealsRoute,
   AppPlaybooksRoute: AppPlaybooksRoute,
   AppSettingsRoute: AppSettingsRoute,
