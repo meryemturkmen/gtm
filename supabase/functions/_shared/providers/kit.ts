@@ -31,10 +31,10 @@ const UA = 'Mozilla/5.0 (compatible; GMT/1.0; +https://github.com/meryemturkmen/
 const MAX_BYTES = 300_000
 
 /** GET with a timeout and a body cap. Throws on network errors, not on HTTP status. */
-export async function fetchPage(fetchImpl: typeof fetch, url: string): Promise<Page> {
+export async function fetchPage(fetchImpl: typeof fetch, url: string, timeoutMs = 10_000): Promise<Page> {
   const res = await fetchImpl(url, {
     redirect: 'follow',
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(timeoutMs),
     headers: { 'user-agent': UA, accept: 'text/html,*/*;q=0.8' },
   })
   const html = (await res.text()).slice(0, MAX_BYTES)

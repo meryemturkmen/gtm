@@ -62,8 +62,8 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
             </thead>
             <tbody>
               {rows.map(c => (
-                <tr key={c.id} className="border-b border-separator hover:bg-surface-2/50 h-8">
-                  <td className="px-3 font-medium truncate max-w-56 sticky left-0 bg-surface z-[4]"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
+                <tr key={c.id} className="border-b border-separator odd:bg-surface-2/40 hover:bg-fill h-8">
+                  <td className="px-3 font-medium truncate max-w-56 sticky left-0 bg-inherit z-[4]"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
                   {properties.data?.map(p => (
                     <td key={p.id} className="p-0 max-w-72 border-l border-separator/60">
                       <Cell company={c} property={p} meta={c.meta[p.key]}

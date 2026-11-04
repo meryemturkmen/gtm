@@ -1,6 +1,7 @@
 import { fetchPage, type Provider } from './kit.ts'
 
-const CAREER_PATHS = ['/careers', '/jobs', '/karriere', '/career', '/jobs/', '/stellenangebote', '/join-us']
+// shortcut: four guesses after the homepage link, 6 s each, so one company never blocks a batch for more than ~30 s
+const CAREER_PATHS = ['/careers', '/jobs', '/karriere', '/career']
 const JOB_WORDS = /\b(job|jobs|position|opening|vacanc|stelle|stellen|karriere|career|hiring|join (?:us|our team))\b/i
 
 /** Links on a page that look like job postings. */
@@ -27,7 +28,7 @@ export const hiringSignal: Provider = {
       .filter((u): u is string => !!u)
     for (const url of [...new Set(candidates)]) {
       let page
-      try { page = await fetchPage(ctx.fetch, url) } catch { continue }
+      try { page = await fetchPage(ctx.fetch, url, 6_000) } catch { continue }
       if (page.status !== 200 || !JOB_WORDS.test(page.html)) continue
       const job_links = countJobLinks(page.html)
       return { data: { hiring: job_links > 0, job_links, careers_url: page.url } }

@@ -9,7 +9,7 @@ import type { AiConfig, CellMeta, Company, Job, Property, ProviderConfig } from 
 
 export const BATCH = 8
 const MAX_ATTEMPTS = 3
-const WAIT_FOR_INPUTS_MS = 15_000
+const WAIT_FOR_INPUTS_MS = 30_000
 
 export type Engine = { db: Db; env: Record<string, string | undefined>; fetch: typeof fetch }
 
@@ -92,9 +92,9 @@ async function runAi(db: Db, job: Job, company: Company, property: Property, ctx
     : []
   const missing = inputs.filter(p => p.source !== 'input' && !company.meta[p.key] && isEmpty(company.props[p.key])).map(p => p.key)
   if (missing.length) {
-    if (job.attempts >= MAX_ATTEMPTS) throw new Error(`inputs never arrived: ${missing.join(', ')}`)
+    // Waiting is not a failed attempt: inputs always settle (each provider job ends done, empty or failed).
     await db.rpc('enqueue_jobs', { p_company: job.company_id, p_keys: missing })
-    await db.update('jobs', `id=eq.${job.id}`, { status: 'queued', run_after: new Date(Date.now() + WAIT_FOR_INPUTS_MS).toISOString() })
+    await db.update('jobs', `id=eq.${job.id}`, { status: 'queued', attempts: job.attempts - 1, run_after: new Date(Date.now() + WAIT_FOR_INPUTS_MS).toISOString() })
     return
   }
   const run = await execute(db, job, company, 'ai', `ai:${property.key}`, ctx, shared)
@@ -176,6 +176,7 @@ async function runAction(db: Db, ctx: ProviderCtx, job: Job, company: Company, a
       await db.rpc('enqueue_jobs', { p_company: company.id, p_keys: a.keys })
       return { type: a.type, keys: a.keys }
     case 'webhook': {
+      assertPublicHttps(a.url)
       const body = JSON.stringify({ event: 'playbook', property: job.property_key, value, company: { id: company.id, domain: company.domain, props: company.props }, at: now() })
       const secret = ctx.env.WEBHOOK_SECRET ?? ''
       const res = await ctx.fetch(a.url, {
@@ -185,6 +186,16 @@ async function runAction(db: Db, ctx: ProviderCtx, job: Job, company: Company, a
       return { type: a.type, status: res.status }
     }
   }
+}
+
+/** Webhooks may only reach public HTTPS hosts; the worker must never be turned into a proxy into the backend network. */
+export function assertPublicHttps(url: string) {
+  let u: URL
+  try { u = new URL(url) } catch { throw new Error(`webhook url is not a URL: ${url}`) }
+  const host = u.hostname.toLowerCase()
+  const privateHost = host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal') || !host.includes('.')
+    || /^(10\.|127\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host) || host.startsWith('[')
+  if (u.protocol !== 'https:' || privateHost) throw new Error(`webhook url must be a public https address: ${url}`)
 }
 
 const setCell = (db: Db, job: Job, value: unknown, meta: CellMeta) =>
