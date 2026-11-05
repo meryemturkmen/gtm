@@ -28,4 +28,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '3' # wrangler 4 delegates `pages` commands to Workers and fails in CI
           command: pages deploy dist --project-name gtm-toolkit --branch main
