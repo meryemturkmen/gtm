@@ -80,4 +80,12 @@
   /* Small caps-free eyebrow for stat labels. */
   .eyebrow { @apply text-[11px] text-label-2 tracking-[0.02em]; }
   .link { @apply underline decoration-label-3 underline-offset-2 hover:decoration-label; }
+
+  /* Sign-in preview: cells arrive one after another, the dot turns from running to done when its cell lands. */
+  .arrive { opacity: 0; animation: arrive 0.35s ease-out forwards; }
+  .dot-wait { animation: dot-wait 1s steps(1, end) forwards; }
+  @media (prefers-reduced-motion: reduce) { .arrive { opacity: 1; } .dot-wait { background: var(--color-green); } }
 }
+
+@keyframes arrive { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@keyframes dot-wait { 0%, 99% { background: var(--color-orange); } 100% { background: var(--color-green); } }
