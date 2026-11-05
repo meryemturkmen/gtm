@@ -30,8 +30,3 @@ begin
        jsonb_build_object('type', 'enqueue', 'keys', jsonb_build_array('first_line'))));
   return ws;
 end $$;
-
--- Worker-only helpers --------------------------------------------------------------------------------------
-
--- Deal creation from a playbook: idempotent per company and stage title.
-create function playbook_create_deal(p_company uuid, p_stage uuid, p_title text) returns uuid
