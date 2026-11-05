@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import type { Company, Job, Property, Run } from '../../supabase/functions/_shared/types.ts'
+import type { View } from './views'
 
 export const PAGE_SIZE = 50
 
@@ -17,14 +18,18 @@ export function useProperties(workspaceId: string) {
   })
 }
 
-export function useCompanies(workspaceId: string, search: string, page: number) {
+/** Sort and filter happen in PostgREST: `props->>key` orders by a column, `props->icp_score->score` compares the score as a number. */
+export function useCompanies(workspaceId: string, view: View, page: number) {
   return useQuery({
-    queryKey: ['companies', workspaceId, search, page],
+    queryKey: ['companies', workspaceId, view, page],
     queryFn: async () => {
+      const { key, dir } = view.sort
+      const column = key === 'created_at' || key === 'domain' ? key : key === 'icp_score' ? 'props->icp_score->score' : `props->>${key}`
       let q = supabase.from('companies').select('*', { count: 'exact' })
-        .eq('workspace_id', workspaceId).order('created_at', { ascending: false })
+        .eq('workspace_id', workspaceId).order(column, { ascending: dir === 'asc', nullsFirst: false })
         .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1)
-      if (search) q = q.ilike('domain', `%${search}%`)
+      if (view.search) q = q.ilike('domain', `%${view.search}%`)
+      if (view.minScore != null) q = q.gte('props->icp_score->score', view.minScore)
       const { data, error, count } = await q
       if (error) throw error
       return { rows: data as Company[], count: count ?? 0 }

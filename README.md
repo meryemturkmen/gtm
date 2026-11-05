@@ -9,7 +9,7 @@ turns a list of domains into qualified pipeline without paying for Clay.
 
 **Live demo:** [gtm-toolkit.pages.dev](https://gtm-toolkit.pages.dev) → "Try the demo workspace". The demo workspace is wiped daily.
 
-![Companies table](docs/screenshots/companies.png)
+![Paste domains, watch the cells fill, get a deal](docs/demo.gif)
 
 ## What it does
 
@@ -19,7 +19,7 @@ turns a list of domains into qualified pipeline without paying for Clay.
 | **Waterfall**: first non-empty provider wins, every cell keeps its provenance (provider, duration, tokens, raw output) | **Timeline** per company: notes, deal moves, playbook fires |
 | Five free providers, no API keys: website meta, tech-stack signatures, MX-based email provider, careers-page hiring signal, logo | **Playbooks**: "when ICP score ≥ 70 → create deal in Qualified, run First line, POST a signed webhook" |
 | AI columns via any OpenAI-compatible endpoint with `json_schema` answers; prompts reference other columns and are enriched in dependency order | **Inbound API** with hashed keys: `POST /functions/v1/ingest {"domains": [...]}` from forms, Zapier, n8n |
-| Live cells: the table updates over Supabase Realtime while the worker runs | Overview: coverage per column, pipeline by stage, AI spend |
+| Live cells, sortable columns, saved views (search + sort + minimum fit), bulk actions on selected rows | Overview: coverage per column, pipeline by stage, AI spend |
 
 ![Company record](docs/screenshots/record.png)
 
@@ -44,6 +44,20 @@ flowchart LR
 
 Decisions and their reasons live in [`docs/adr/`](docs/adr/) and the build log in [`docs/LOG.md`](docs/LOG.md).
 
+## Why not Clay?
+
+Clay is the better product: hundreds of providers, people search, a polished UI, and a team maintaining it. GTM is what you reach for when you want to **own the pipeline logic** and keep the bill flat.
+
+| | Clay | GTM |
+|---|---|---|
+| Cost | Credits per cell; a 10k-row table with a handful of columns runs into hundreds of euros a month | Supabase free tier plus your own LLM key; the five built-in providers are free |
+| Data model | Tables, then "push to CRM" | The table *is* the CRM: deals, timeline and playbooks sit on the same row |
+| AI columns | Prompt per cell, their models | Any OpenAI-compatible endpoint, JSON-schema answers, prompt and cost in the open |
+| Extensibility | Their provider catalog, HTTP API node | One TypeScript file per provider, with a test |
+| Where it falls short | | No people data, no enrichment marketplace, no team features beyond RLS roles |
+
+The honest answer for a sales team of twenty: buy Clay. For a GTM engineer who wants to understand what a waterfall, a provenance log and a playbook engine actually are, build this.
+
 ## Run it locally
 
 Requirements: Node 22+, Docker (OrbStack or Docker Desktop).
@@ -61,6 +75,7 @@ AI columns need `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL` in `supabase/funct
 
 ```bash
 npm test            # Vitest: providers against HTML fixtures, waterfall, playbook conditions, CSV
+npx supabase test db  # pgTAP: Row Level Security, two users and one workspace
 npm run typecheck
 ```
 
@@ -86,7 +101,7 @@ curl -X POST "$SUPABASE_URL/functions/v1/ingest" -H "x-api-key: gtm_…" -H "con
   -d '{"domains": ["acme.de", "example.com"]}'
 ```
 
-Outbound webhooks are signed: `x-gtm-signature = HMAC-SHA256(WEBHOOK_SECRET, body)`.
+Inbound keys are limited to 60 calls per minute. Outbound webhooks are signed: `x-gtm-signature = HMAC-SHA256(WEBHOOK_SECRET, body)`.
 
 ## Adding a provider
 
@@ -104,6 +119,6 @@ export const myProvider: Provider = {
 
 ## Status
 
-Live on Supabase and Cloudflare Pages with a public demo workspace; migrations, edge functions and the frontend deploy from GitHub Actions. Not yet: saved views, multi-workspace switcher, contact-level enrichment.
+Live on Supabase and Cloudflare Pages with a public demo workspace; migrations, edge functions and the frontend deploy from GitHub Actions. Not yet: multi-workspace switcher, contact-level enrichment.
 
 MIT.

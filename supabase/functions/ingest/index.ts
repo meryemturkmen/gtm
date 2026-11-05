@@ -15,7 +15,13 @@ Deno.serve(async (req) => {
   if (domains.length > 500) return Response.json({ error: 'max 500 domains per call' }, { status: 413 })
 
   const db = makeDb(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-  const workspace = await db.rpc<string | null>('resolve_api_key', { p_raw: key })
+  let workspace: string | null
+  try {
+    workspace = await db.rpc<string | null>('resolve_api_key', { p_raw: key })
+  } catch (err) {
+    if (String(err).includes('rate limited')) return Response.json({ error: 'rate limited: 60 calls per minute per key' }, { status: 429 })
+    throw err
+  }
   if (!workspace) return Response.json({ error: 'invalid api key' }, { status: 401 })
 
   const rows = await db.rpc<{ id: string; domain: string }[]>('ingest_companies', { p_workspace: workspace, p_domains: domains })
