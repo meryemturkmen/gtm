@@ -67,7 +67,7 @@ npm run typecheck
 1. **Supabase**: create a project, add `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD` as GitHub secrets. The `Deploy Supabase` workflow pushes migrations and edge functions on every change under `supabase/`. Set function secrets once: `npx supabase secrets set QWEN_BASE_URL=… QWEN_API_KEY=… QWEN_MODEL=… WEBHOOK_SECRET=…`.
 2. **Scheduler**: run once in the SQL editor so `pg_cron` can reach the worker:
    `select vault.create_secret('https://<ref>.supabase.co/functions/v1/run-jobs', 'run_jobs_url'); select vault.create_secret('<service_role key>', 'service_role_key');`
-3. **Cloudflare Pages**: connect the repo, build command `npm run build`, output `dist`, env `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Add the Pages URL to Supabase Auth redirect URLs.
+3. **Cloudflare Pages**: `npx wrangler pages project create <name>` once, then add `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` as GitHub secrets. The `Deploy Pages` workflow builds and uploads on every push (or run `npm run build && npx wrangler pages deploy dist --project-name <name>` by hand). Add the Pages URL to Supabase Auth redirect URLs.
 4. **Demo workspace** (optional): create a user in Supabase Auth, make it editor of a workspace with `is_demo = true`, set `VITE_DEMO_EMAIL` / `VITE_DEMO_PASSWORD`. Companies older than a day are swept hourly.
 
 ## The API is the database

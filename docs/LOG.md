@@ -29,3 +29,6 @@ Decisions and state, newest first. Keep entries short.
 - Skipped on purpose: saved views, workspace switcher, virtualised table (50 rows per page is enough for a demo). Export covers the current page.
 - HIG review merged into one pass at the end of Phase 4 instead of two passes (same findings, less churn). Local tooling: Playwright in the scratchpad takes the screenshots in `docs/screenshots/`.
 - Deno is not installed on the build machine (no Homebrew); `deno check` of the edge functions runs in CI only.
+
+## 2026-11-05
+- Cloudflare Pages project `gmt-toolkit` created with wrangler (the dashboard Git integration is not needed); `deploy-pages.yml` builds and uploads on push. Odoo containers removed from the dev machine, local Supabase has the memory it needs again.
