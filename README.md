@@ -104,6 +104,6 @@ export const myProvider: Provider = {
 
 ## Status
 
-Working end to end locally; cloud deploy is wired but needs the owner's Supabase project and Cloudflare account. Not yet: saved views, multi-workspace switcher, contact-level enrichment.
+Live on Supabase and Cloudflare Pages with a public demo workspace; migrations, edge functions and the frontend deploy from GitHub Actions. Not yet: saved views, multi-workspace switcher, contact-level enrichment.
 
 MIT.
