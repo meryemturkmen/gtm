@@ -5,6 +5,7 @@ import { PAGE_SIZE, enqueue, useCompanies, useOpenJobs, useProperties, useRealti
 import { Cell } from '../../components/Cell'
 import { RunSheet } from '../../components/RunSheet'
 import { AddCompaniesSheet } from '../../components/AddCompaniesSheet'
+import { PageHeader } from '../../components/PageHeader'
 import { toCsv } from '../../lib/csv'
 import type { Company, Property } from '../../../supabase/functions/_shared/types.ts'
 
@@ -23,6 +24,10 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
   const [open, setOpen] = useState<{ company: Company; property: Property } | null>(null)
 
   const properties = useProperties(workspaceId)
+  // The logo lives in the Domain cell instead of its own column, and the fit score sits next to the domain:
+  // it is the one number people scan the table for.
+  const columns = (properties.data ?? []).filter(p => p.key !== 'logo')
+    .sort((a, b) => Number(b.key === 'icp_score') - Number(a.key === 'icp_score'))
   const companies = useCompanies(workspaceId, search, page)
   const jobs = useOpenJobs(workspaceId)
 
@@ -34,26 +39,24 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
 
   return (
     <>
-      <header className="flex items-center gap-2 px-4 h-12 border-b border-separator bg-surface sticky top-0 z-10">
-        <h1 className="font-semibold">Companies</h1>
-        <span className="text-label-2">{count}{openCount > 0 && ` · ${openCount} running`}</span>
-        <input type="search" className="input ml-auto w-56" placeholder="Filter by domain" value={search}
+      <PageHeader title="Companies" meta={<>{count}{openCount > 0 && ` · ${openCount} running`}</>}>
+        <input type="search" className="input w-56" placeholder="Filter by domain" value={search}
           onChange={e => { setSearch(e.target.value); setPage(0) }} aria-label="Filter by domain" />
         <button className="btn" disabled={rows.length === 0} onClick={() => exportCsv(rows, properties.data ?? [])}>Export CSV</button>
         <button className="btn btn-primary" onClick={() => setAdding(true)}>Add companies</button>
-      </header>
+      </PageHeader>
 
       {companies.error && <p role="alert" className="m-4 text-red">{companies.error.message}</p>}
 
       {count === 0 && !companies.isPending && !search ? (
         <EmptyState onAdd={() => setAdding(true)} />
       ) : (
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto bg-surface border-t border-separator">
           <table className="border-collapse w-max min-w-full">
-            <thead className="sticky top-0 z-[5] bg-surface-2">
+            <thead className="sticky top-0 z-[5] bg-surface">
               <tr>
-                <th className="th w-56 sticky left-0 bg-surface-2 z-[6]">Domain</th>
-                {properties.data?.map(p => (
+                <th className="th w-60 pl-5 sticky left-0 bg-surface z-[6]">Domain</th>
+                {columns.map(p => (
                   <th key={p.id} className="th">
                     <ColumnHeader property={p} rows={rows} />
                   </th>
@@ -62,9 +65,14 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
             </thead>
             <tbody>
               {rows.map(c => (
-                <tr key={c.id} className="border-b border-separator odd:bg-surface-2/40 hover:bg-fill h-8">
-                  <td className="px-3 font-medium truncate max-w-56 sticky left-0 bg-inherit z-[4]"><Link to="/companies/$id" params={{ id: c.id }} className="hover:underline">{c.domain}</Link></td>
-                  {properties.data?.map(p => (
+                <tr key={c.id} className="border-b border-separator odd:bg-surface-2/40 hover:bg-fill h-9">
+                  <td className="pl-5 pr-3 max-w-60 sticky left-0 bg-inherit z-[4]">
+                    <Link to="/companies/$id" params={{ id: c.id }} className="flex items-center gap-2.5 min-w-0 hover:underline">
+                      <Logo src={c.props.logo as string | undefined} domain={c.domain} />
+                      <span className="mono font-medium truncate">{c.domain}</span>
+                    </Link>
+                  </td>
+                  {columns.map(p => (
                     <td key={p.id} className="p-0 max-w-72 border-l border-separator/60">
                       <Cell company={c} property={p} meta={c.meta[p.key]}
                         job={jobs.data?.[`${c.id}:${p.key}`]} onOpen={() => setOpen({ company: c, property: p })} />
@@ -91,6 +99,13 @@ function CompaniesTable({ workspaceId }: { workspaceId: string }) {
       )}
     </>
   )
+}
+
+/** Favicon when the logo column has one, otherwise a monogram in the same slot. */
+export function Logo({ src, domain, size = 'size-5 text-[10px]' }: { src?: string; domain: string; size?: string }) {
+  return src
+    ? <img src={src} alt="" className={`${size} rounded-[5px] shrink-0 bg-surface`} loading="lazy" />
+    : <span aria-hidden className={`${size} rounded-[5px] shrink-0 bg-fill text-label-2 grid place-items-center font-semibold uppercase`}>{domain.charAt(0)}</span>
 }
 
 /** Column label plus a run menu for enrichment columns. */
@@ -133,7 +148,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex-1 grid place-items-center p-8 text-center">
       <div className="max-w-sm">
-        <h2 className="text-lg font-semibold">No companies yet</h2>
+        <h2 className="title">No companies yet</h2>
         <p className="text-label-2 mt-1 mb-4">Paste a list of domains. Every enrichment column fills itself in; click a cell to see where the value came from.</p>
         <button className="btn btn-primary" onClick={onAdd}>Add companies</button>
       </div>

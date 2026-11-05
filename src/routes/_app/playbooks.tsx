@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { usePlaybookRuns, usePlaybooks, useStages, type Playbook } from '../../lib/crm'
 import { useProperties, useRealtime } from '../../lib/queries'
 import { Sheet } from '../../components/Sheet'
+import { PageHeader } from '../../components/PageHeader'
 import { conditionOps, type Action, type Condition } from '../../../supabase/functions/_shared/playbooks.ts'
 
 export const Route = createFileRoute('/_app/playbooks')({ component: PlaybooksPage })
@@ -44,12 +45,10 @@ function PlaybooksPage() {
 
   return (
     <>
-      <header className="flex items-center gap-2 px-4 h-12 border-b border-separator bg-surface">
-        <h1 className="font-semibold">Playbooks</h1>
-        <span className="text-label-2">fire once per company when a cell changes</span>
-        <button className="btn btn-primary ml-auto" onClick={() => setEditing('new')}>New playbook</button>
-      </header>
-      <div className="p-4 flex flex-col gap-6 max-w-4xl">
+      <PageHeader title="Playbooks" meta="fire once per company when a cell changes">
+        <button className="btn btn-primary" onClick={() => setEditing('new')}>New playbook</button>
+      </PageHeader>
+      <div className="px-6 pb-8 flex flex-col gap-8 max-w-4xl">
         {playbooks.error && <p role="alert" className="text-red">{playbooks.error.message}</p>}
         <ul className="card divide-y divide-separator">
           {playbooks.data?.map(p => (

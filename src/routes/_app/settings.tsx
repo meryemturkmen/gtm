@@ -5,6 +5,7 @@ import { useWorkspace } from '../_app'
 import { supabase } from '../../lib/supabase'
 import { useProperties } from '../../lib/queries'
 import { ApiKeys } from '../../components/ApiKeys'
+import { PageHeader } from '../../components/PageHeader'
 import { providerCatalog } from '../../../supabase/functions/_shared/providers/index.ts'
 import { aiSchemas } from '../../../supabase/functions/_shared/waterfall.ts'
 import type { Property, PropertyType } from '../../../supabase/functions/_shared/types.ts'
@@ -14,12 +15,14 @@ export const Route = createFileRoute('/_app/settings')({ component: SettingsPage
 function SettingsPage() {
   const ws = useWorkspace().data!
   return (
-    <div className="p-6 max-w-3xl flex flex-col gap-8">
-      <h1 className="text-lg font-semibold">Settings</h1>
+    <>
+    <PageHeader title="Settings" />
+    <div className="px-6 pb-8 max-w-3xl flex flex-col gap-8">
       <IcpSection workspaceId={ws.id} icp={ws.icp} />
       <ColumnsSection workspaceId={ws.id} />
       <ApiKeys workspaceId={ws.id} />
     </div>
+    </>
   )
 }
 

@@ -1,19 +1,23 @@
 @import 'tailwindcss';
 
-/* Design tokens, Apple HIG semantic colors (light), overridden for dark below. */
+/*
+  Design tokens. Controls are monochrome ink; colour belongs to the data
+  (status dots, score meters, logos). Apple HIG semantic greys, light first, dark below.
+*/
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'SF Mono', ui-monospace, Menlo, monospace;
+  --font-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
 
   --color-bg: #f5f5f7;
   --color-surface: #ffffff;
   --color-surface-2: #f2f2f7;
-  --color-separator: rgba(60, 60, 67, 0.18);
+  --color-separator: rgba(60, 60, 67, 0.16);
   --color-label: #1d1d1f;
-  --color-label-2: rgba(60, 60, 67, 0.6);
-  --color-label-3: rgba(60, 60, 67, 0.3);
-  --color-accent: #0071e3;
+  --color-label-2: rgba(60, 60, 67, 0.62);
+  --color-label-3: rgba(60, 60, 67, 0.32);
+  --color-accent: #1d1d1f;       /* ink: primary actions and selection, 16:1 on white */
   --color-accent-fg: #ffffff;
+  --color-score: #5e5ce6;        /* one hue for the ICP score, filled by magnitude */
   --color-green: #34c759;
   --color-orange: #ff9500;
   --color-red: #ff3b30;
@@ -34,7 +38,9 @@
     --color-label: #f5f5f7;
     --color-label-2: rgba(235, 235, 245, 0.6);
     --color-label-3: rgba(235, 235, 245, 0.3);
-    --color-accent: #0a84ff;
+    --color-accent: #f5f5f7;
+    --color-accent-fg: #1d1d1f;
+    --color-score: #7d7aff;
     --color-fill: rgba(120, 120, 128, 0.24);
     --color-fill-2: rgba(120, 120, 128, 0.32);
   }
@@ -50,20 +56,28 @@
   }
   body { margin: 0; }
   button, input, select, textarea { font: inherit; color: inherit; }
-  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--color-score); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 }
 
 @layer components {
   .btn {
     @apply inline-flex items-center gap-1.5 h-7 px-3 rounded-ctl bg-fill text-label hover:bg-fill-2 disabled:opacity-40 disabled:cursor-not-allowed select-none whitespace-nowrap;
   }
-  .btn-primary { @apply bg-accent text-accent-fg hover:bg-accent/90; }
+  .btn-primary { @apply bg-accent text-accent-fg hover:bg-accent/85; }
   .input {
     @apply h-7 px-2 rounded-ctl bg-surface border border-separator placeholder:text-label-3 w-full;
   }
   .card { @apply bg-surface rounded-card border border-separator; }
-}
-
-@layer components {
   .th { @apply text-left font-medium text-label-2 h-8 px-1 border-b border-separator whitespace-nowrap; }
+
+  /* Identifiers: domains, keys, provider names. */
+  .mono { @apply font-mono text-[12px] tracking-[-0.01em]; }
+  /* Page titles, Apple "title 1" weight and tracking. */
+  .title { @apply text-[22px] font-semibold tracking-[-0.02em] leading-7; }
+  /* Small caps-free eyebrow for stat labels. */
+  .eyebrow { @apply text-[11px] text-label-2 tracking-[0.02em]; }
+  .link { @apply underline decoration-label-3 underline-offset-2 hover:decoration-label; }
 }

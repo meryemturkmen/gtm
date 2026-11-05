@@ -5,6 +5,7 @@ import { useWorkspace } from '../_app'
 import { supabase } from '../../lib/supabase'
 import { useDeals, useStages, type Deal, type Stage } from '../../lib/crm'
 import { useRealtime } from '../../lib/queries'
+import { PageHeader } from '../../components/PageHeader'
 
 export const Route = createFileRoute('/_app/deals')({ component: DealsPage })
 
@@ -33,21 +34,19 @@ function DealsPage() {
 
   return (
     <>
-      <header className="flex items-center gap-2 px-4 h-12 border-b border-separator bg-surface">
-        <h1 className="font-semibold">Deals</h1>
-        <span className="text-label-2">{deals.data?.length ?? 0} · {money.format(total)} open</span>
-        {move.error && <span role="alert" className="text-red ml-auto">{move.error.message}</span>}
-      </header>
+      <PageHeader title="Deals" meta={`${deals.data?.length ?? 0} · ${money.format(total)} open`}>
+        {move.error && <span role="alert" className="text-red">{move.error.message}</span>}
+      </PageHeader>
       {deals.error && <p role="alert" className="m-4 text-red">{deals.error.message}</p>}
       {deals.data?.length === 0 ? (
         <div className="flex-1 grid place-items-center p-8 text-center">
           <div className="max-w-sm">
-            <h2 className="text-lg font-semibold">No deals yet</h2>
+            <h2 className="title">No deals yet</h2>
             <p className="text-label-2 mt-1">Deals appear here when a playbook qualifies a company, or when you add one on a company page.</p>
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-x-auto flex gap-3 p-4 items-start">
+        <div className="flex-1 overflow-x-auto flex gap-3 px-6 pb-6 items-start">
           {stages.data?.map(stage => (
             <Column key={stage.id} stage={stage} dragging={dragging}
               deals={(deals.data ?? []).filter(d => d.stage_id === stage.id)}
@@ -68,7 +67,7 @@ function Column({ stage, deals, dragging, onDrop, onDragStart }: {
   return (
     <section
       aria-label={stage.name}
-      className={`w-60 shrink-0 rounded-card p-2 flex flex-col gap-2 transition-colors ${over ? 'bg-accent/10' : 'bg-surface-2/70'}`}
+      className={`w-60 shrink-0 rounded-card p-2 flex flex-col gap-2 transition-colors ${over ? 'bg-fill-2' : 'bg-surface-2/70'}`}
       onDragOver={e => { e.preventDefault(); setOver(true) }}
       onDragLeave={() => setOver(false)}
       onDrop={e => { e.preventDefault(); setOver(false); const id = e.dataTransfer.getData('text/deal'); if (id) onDrop(id) }}
@@ -84,7 +83,7 @@ function Column({ stage, deals, dragging, onDrop, onDragStart }: {
           className={`card p-2.5 cursor-grab active:cursor-grabbing ${dragging === d.id ? 'opacity-40' : ''}`}>
           <Link to="/companies/$id" params={{ id: d.company_id }} className="font-medium hover:underline">{d.title}</Link>
           <div className="text-label-2 flex justify-between mt-0.5">
-            <span className="truncate">{d.companies?.domain}</span>
+            <span className="truncate mono">{d.companies?.domain}</span>
             {d.amount != null && <span className="tabular-nums">{money.format(d.amount)}</span>}
           </div>
         </article>

@@ -7,6 +7,8 @@ turns a list of domains into qualified pipeline without paying for Clay.
 > AI columns summarise and score against your ICP → a playbook opens the deal and drafts the first line →
 > a signed webhook tells n8n, Slack or your real CRM.
 
+**Live demo:** [gtm-toolkit.pages.dev](https://gtm-toolkit.pages.dev) → "Try the demo workspace". The demo workspace is wiped daily.
+
 ![Companies table](docs/screenshots/companies.png)
 
 ## What it does
@@ -17,7 +19,7 @@ turns a list of domains into qualified pipeline without paying for Clay.
 | **Waterfall**: first non-empty provider wins, every cell keeps its provenance (provider, duration, tokens, raw output) | **Timeline** per company: notes, deal moves, playbook fires |
 | Five free providers, no API keys: website meta, tech-stack signatures, MX-based email provider, careers-page hiring signal, logo | **Playbooks**: "when ICP score ≥ 70 → create deal in Qualified, run First line, POST a signed webhook" |
 | AI columns via any OpenAI-compatible endpoint with `json_schema` answers; prompts reference other columns and are enriched in dependency order | **Inbound API** with hashed keys: `POST /functions/v1/ingest {"domains": [...]}` from forms, Zapier, n8n |
-| Live cells: the table updates over Supabase Realtime while the worker runs | Dashboard: coverage per column, pipeline by stage, AI spend |
+| Live cells: the table updates over Supabase Realtime while the worker runs | Overview: coverage per column, pipeline by stage, AI spend |
 
 ![Company record](docs/screenshots/record.png)
 

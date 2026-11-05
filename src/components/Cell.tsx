@@ -18,7 +18,7 @@ export function Cell({ company, property, meta, job, onOpen }: Props) {
       className="group flex items-center gap-1.5 w-full h-full px-2 text-left truncate disabled:cursor-default enabled:hover:bg-fill"
     >
       {status && <StatusDot status={status} />}
-      <span className="truncate">{format(property, value)}</span>
+      <span className="truncate min-w-0">{format(property, value)}</span>
     </button>
   )
 }
@@ -57,12 +57,25 @@ export function StatusDot({ status }: { status: Job['status'] | CellMeta['status
   return <span aria-label={status} className={`inline-block size-1.5 rounded-full shrink-0 ${cls}`} />
 }
 
+/** The signature mark: a 0–100 score as number plus a short meter in one hue, filled by magnitude. */
+export function ScoreMeter({ score, size = 'sm' }: { score: number; size?: 'sm' | 'lg' }) {
+  const pct = Math.max(0, Math.min(100, score))
+  return (
+    <span className="inline-flex items-center gap-2 shrink-0" role="img" aria-label={`Score ${pct} of 100`}>
+      <b className={`font-semibold tabular-nums ${size === 'lg' ? 'text-[22px] tracking-[-0.02em]' : ''}`}>{pct}</b>
+      <span aria-hidden className={`rounded-full bg-fill overflow-hidden ${size === 'lg' ? 'w-28 h-2' : 'w-10 h-1.5'}`}>
+        <span className="block h-full rounded-full bg-score transition-[width] duration-300" style={{ width: `${pct}%` }} />
+      </span>
+    </span>
+  )
+}
+
 export function format(p: Property, v: unknown): React.ReactNode {
   if (v == null || v === '') return <span className="text-label-3">—</span>
   if (typeof v === 'object' && !Array.isArray(v)) {
     const o = v as Record<string, unknown>
     // AI answer shapes from waterfall.ts: {score, reason} and {answer, reason}
-    if (typeof o.score === 'number') return <><b className="font-semibold tabular-nums">{o.score}</b> <span className="text-label-2">{String(o.reason ?? '')}</span></>
+    if (typeof o.score === 'number') return <><ScoreMeter score={o.score} /> <span className="text-label-2">{String(o.reason ?? '')}</span></>
     if (typeof o.answer === 'boolean') return <><b className="font-semibold">{o.answer ? 'Yes' : 'No'}</b> <span className="text-label-2">{String(o.reason ?? '')}</span></>
     return JSON.stringify(v)
   }
@@ -71,7 +84,7 @@ export function format(p: Property, v: unknown): React.ReactNode {
     case 'url':
       return p.key === 'logo' || /\.(png|svg|ico|jpg|webp)|favicons/.test(String(v))
         ? <img src={String(v)} alt="" className="size-4 rounded-sm" loading="lazy" />
-        : <a href={String(v)} target="_blank" rel="noreferrer" className="text-accent hover:underline" onClick={e => e.stopPropagation()}>
+        : <a href={String(v)} target="_blank" rel="noreferrer" className="mono link" onClick={e => e.stopPropagation()}>
             {String(v).replace(/^https?:\/\/(www\.)?/, '')}
           </a>
     case 'json':

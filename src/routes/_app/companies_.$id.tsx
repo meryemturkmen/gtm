@@ -5,8 +5,9 @@ import { useWorkspace } from '../_app'
 import { supabase } from '../../lib/supabase'
 import { useActivities, useCompany, useCompanyDeals, useContacts, useStages } from '../../lib/crm'
 import { enqueue, useOpenJobs, useProperties, useRealtime } from '../../lib/queries'
-import { Cell } from '../../components/Cell'
+import { Cell, ScoreMeter } from '../../components/Cell'
 import { RunSheet } from '../../components/RunSheet'
+import { Logo } from './companies'
 import type { Property } from '../../../supabase/functions/_shared/types.ts'
 
 export const Route = createFileRoute('/_app/companies_/$id')({ component: CompanyPage })
@@ -26,26 +27,37 @@ function CompanyPage() {
   const c = company.data
   const name = (c.props.name as string) || c.domain
   const logo = c.props.logo as string | undefined
+  const score = (c.props.icp_score as { score?: number; reason?: string } | undefined)
   const enrichable = (properties.data ?? []).filter(p => p.source !== 'input').map(p => p.key)
 
   return (
     <>
-      <header className="flex items-center gap-3 px-4 h-12 border-b border-separator bg-surface">
-        <Link to="/companies" className="text-label-2 hover:text-label">Companies</Link>
-        <span className="text-label-3">/</span>
-        {logo && <img src={logo} alt="" className="size-5 rounded-sm" />}
-        <h1 className="font-semibold truncate">{name}</h1>
-        <a href={`https://${c.domain}`} target="_blank" rel="noreferrer" className="text-label-2 hover:underline">{c.domain}</a>
-        <button className="btn ml-auto" onClick={async () => { await enqueue([c.id], enrichable); qc.invalidateQueries({ queryKey: ['jobs', ws.id] }) }}>
-          Re-run all columns
-        </button>
+      {/* The record header is the one place that gets room: logo, name, domain, and the fit score at full size. */}
+      <header className="px-6 pt-4 pb-5 flex flex-col gap-4 bg-bg">
+        <Link to="/companies" className="text-label-2 hover:text-label self-start">← Companies</Link>
+        <div className="flex items-center gap-4 min-w-0">
+          <Logo src={logo} domain={c.domain} size="size-12 text-lg" />
+          <div className="min-w-0 flex-1">
+            <h1 className="title truncate">{name}</h1>
+            <a href={`https://${c.domain}`} target="_blank" rel="noreferrer" className="mono link text-label-2">{c.domain}</a>
+          </div>
+          {typeof score?.score === 'number' && (
+            <div className="hidden md:flex flex-col items-end gap-1 shrink-0 w-72 min-w-0">
+              <ScoreMeter score={score.score} size="lg" />
+              <span className="eyebrow truncate block max-w-full" title={score.reason}>ICP fit · {score.reason}</span>
+            </div>
+          )}
+          <button className="btn shrink-0" onClick={async () => { await enqueue([c.id], enrichable); qc.invalidateQueries({ queryKey: ['jobs', ws.id] }) }}>
+            Re-run all columns
+          </button>
+        </div>
       </header>
-      <div className="flex-1 overflow-auto p-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-4 items-start">
+      <div className="flex-1 overflow-auto px-6 pb-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-4 items-start">
         <div className="flex flex-col gap-4 min-w-0">
           <section className="card">
             <h2 className="font-semibold px-3 h-9 flex items-center border-b border-separator">Properties</h2>
             <dl className="divide-y divide-separator">
-              {properties.data?.map(p => (
+              {properties.data?.filter(p => p.key !== 'logo').map(p => (
                 <div key={p.id} className="grid grid-cols-[10rem_1fr] items-center min-h-9">
                   <dt className="px-3 text-label-2">{p.label}</dt>
                   <dd className="min-h-9 min-w-0 flex items-center border-l border-separator/60">
@@ -138,7 +150,7 @@ function Contacts({ companyId, workspaceId }: { companyId: string; workspaceId: 
           <li key={ct.id} className="px-3 h-9 flex items-center gap-3">
             <span className="font-medium w-44 truncate">{ct.first_name} {ct.last_name}</span>
             <span className="text-label-2 w-40 truncate">{ct.title}</span>
-            {ct.email && <a href={`mailto:${ct.email}`} className="text-accent hover:underline truncate">{ct.email}</a>}
+            {ct.email && <a href={`mailto:${ct.email}`} className="mono link truncate">{ct.email}</a>}
             <button className="btn ml-auto" onClick={() => remove.mutate(ct.id)} aria-label={`Remove ${ct.first_name}`}>Remove</button>
           </li>
         ))}
@@ -177,7 +189,7 @@ function Timeline({ companyId, workspaceId }: { companyId: string; workspaceId: 
       <ol className="divide-y divide-separator max-h-[60vh] overflow-y-auto">
         {activities.data?.map(a => (
           <li key={a.id} className="px-3 py-2 flex gap-3">
-            <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${a.kind === 'note' ? 'bg-accent' : 'bg-label-3'}`} aria-hidden />
+            <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${a.kind === 'note' ? 'bg-score' : 'bg-label-3'}`} aria-hidden />
             <div className="min-w-0 flex-1">
               <p className={a.kind === 'system' ? 'text-label-2' : ''}>{a.body}</p>
               <time className="text-label-3 text-xs tabular-nums">{new Date(a.created_at).toLocaleString()}</time>
