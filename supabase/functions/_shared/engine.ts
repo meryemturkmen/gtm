@@ -181,7 +181,7 @@ async function runAction(db: Db, ctx: ProviderCtx, job: Job, company: Company, a
       const secret = ctx.env.WEBHOOK_SECRET ?? ''
       const res = await ctx.fetch(a.url, {
         method: 'POST', body, signal: AbortSignal.timeout(10_000),
-        headers: { 'content-type': 'application/json', 'x-gmt-signature': secret ? await sign(secret, body) : 'unsigned' },
+        headers: { 'content-type': 'application/json', 'x-gtm-signature': secret ? await sign(secret, body) : 'unsigned' },
       })
       return { type: a.type, status: res.status }
     }

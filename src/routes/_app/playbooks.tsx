@@ -162,7 +162,7 @@ function PlaybookSheet({ workspaceId, playbook, onClose, onSaved }: { workspaceI
           ))}
           <button type="button" className="btn self-start" onClick={() => setActions(as => [...as, defaultAction('create_deal', stages.data?.[1]?.id ?? '')])}>Add action</button>
         </fieldset>
-        <p className="text-label-2 text-xs">Webhooks are signed with <code className="font-mono">x-gmt-signature</code> (HMAC-SHA256 of the body with your WEBHOOK_SECRET).</p>
+        <p className="text-label-2 text-xs">Webhooks are signed with <code className="font-mono">x-gtm-signature</code> (HMAC-SHA256 of the body with your WEBHOOK_SECRET).</p>
         {error && <p role="alert" className="text-red">{error}</p>}
         <button className="btn btn-primary self-start">{playbook ? 'Save' : 'Create'}</button>
       </form>

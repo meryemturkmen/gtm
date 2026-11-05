@@ -36,7 +36,7 @@ function Login() {
     <main className="min-h-dvh grid place-items-center p-4">
       <form onSubmit={send} className="card w-full max-w-xs p-6 flex flex-col gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">GMT</h1>
+          <h1 className="text-xl font-semibold tracking-tight">GTM</h1>
           <p className="text-label-2 mt-1">Sign in with a magic link.</p>
         </div>
         {state === 'sent' ? (

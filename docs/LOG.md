@@ -24,11 +24,12 @@ Decisions and state, newest first. Keep entries short.
 - Playbooks run inside the worker after a cell write (ADR 0004). Default playbook: ICP ≥ 70 → deal in Qualified + run First line.
 - Worker-only RPCs (`claim_jobs`, `set_cell`, `enqueue_jobs`, `playbook_create_deal`, `resolve_api_key`, `ingest_companies`) have EXECUTE revoked from `authenticated`; only the service role reaches them.
 - Postgres partial unique indexes cannot be targeted by PostgREST's `resolution=ignore-duplicates`; idempotent inserts therefore go through SQL functions with `on conflict … where`.
-- API keys: `gmt_` + 48 hex chars, only the SHA-256 is stored, plaintext shown once.
+- API keys: `gtm_` + 48 hex chars, only the SHA-256 is stored, plaintext shown once.
 - Demo workspace: `workspaces.is_demo` + hourly sweep of companies older than 24 h; login button appears when `VITE_DEMO_*` are set.
 - Skipped on purpose: saved views, workspace switcher, virtualised table (50 rows per page is enough for a demo). Export covers the current page.
 - HIG review merged into one pass at the end of Phase 4 instead of two passes (same findings, less churn). Local tooling: Playwright in the scratchpad takes the screenshots in `docs/screenshots/`.
 - Deno is not installed on the build machine (no Homebrew); `deno check` of the edge functions runs in CI only.
 
 ## 2026-11-05
-- Cloudflare Pages project `gmt-toolkit` created with wrangler (the dashboard Git integration is not needed); `deploy-pages.yml` builds and uploads on push. Odoo containers removed from the dev machine, local Supabase has the memory it needs again.
+- Cloudflare Pages project `gtm-toolkit` created with wrangler (the dashboard Git integration is not needed); `deploy-pages.yml` builds and uploads on push. Odoo containers removed from the dev machine, local Supabase has the memory it needs again.
+- Renamed to GTM (Go-to-Market): repo `meryemturkmen/gtm`, Pages project `gtm-toolkit`, webhook header `x-gtm-signature`, API key prefix `gtm_` via migration 20261105000001. Migrations already applied were not edited.

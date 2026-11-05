@@ -4,7 +4,7 @@
 
 ## Context
 
-HubSpot-style workflows react to property changes. In GMT most property changes are produced by the enrichment worker, and re-running an enrichment must not create a second deal or fire a second webhook.
+HubSpot-style workflows react to property changes. In GTM most property changes are produced by the enrichment worker, and re-running an enrichment must not create a second deal or fire a second webhook.
 
 ## Decision
 
@@ -16,4 +16,4 @@ Actions are deliberately few: create a deal (idempotent per company and title), 
 
 - No separate workflow engine; the enrichment worker is the only place that mutates on a schedule.
 - Hand-typed input columns do not trigger playbooks (they do not go through the worker). Acceptable for now; a database trigger could enqueue a synthetic job if that is ever needed.
-- Webhook payloads carry the full `props`, signed with HMAC-SHA256 under `x-gmt-signature`, so n8n, Zapier or a custom receiver can verify them.
+- Webhook payloads carry the full `props`, signed with HMAC-SHA256 under `x-gtm-signature`, so n8n, Zapier or a custom receiver can verify them.

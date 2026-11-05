@@ -1,4 +1,4 @@
-# GMT — Go-to-Market Toolkit
+# GTM — Go-to-Market Toolkit
 
 Clay-style enrichment tables and a HubSpot-style CRM core on **one data model**, built to show how a GTM engineer
 turns a list of domains into qualified pipeline without paying for Clay.
@@ -80,11 +80,11 @@ curl "$SUPABASE_URL/rest/v1/companies?select=domain,props&props->icp_score->>sco
   -H "apikey: $ANON_KEY" -H "Authorization: Bearer $USER_JWT"
 
 # push domains in from anywhere (key from Settings → API keys)
-curl -X POST "$SUPABASE_URL/functions/v1/ingest" -H "x-api-key: gmt_…" -H "content-type: application/json" \
+curl -X POST "$SUPABASE_URL/functions/v1/ingest" -H "x-api-key: gtm_…" -H "content-type: application/json" \
   -d '{"domains": ["acme.de", "example.com"]}'
 ```
 
-Outbound webhooks are signed: `x-gmt-signature = HMAC-SHA256(WEBHOOK_SECRET, body)`.
+Outbound webhooks are signed: `x-gtm-signature = HMAC-SHA256(WEBHOOK_SECRET, body)`.
 
 ## Adding a provider
 

@@ -4,7 +4,7 @@
 
 ## Context
 
-Clay models data as tables with enrichment columns; HubSpot models it as objects with properties. GMT wants both views on the same rows without two data models.
+Clay models data as tables with enrichment columns; HubSpot models it as objects with properties. GTM wants both views on the same rows without two data models.
 
 ## Decision
 

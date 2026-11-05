@@ -27,7 +27,7 @@ export type Provider = {
   run: (ctx: ProviderCtx) => Promise<ProviderOutput>
 }
 
-const UA = 'Mozilla/5.0 (compatible; GMT/1.0; +https://github.com/meryemturkmen/gmt)'
+const UA = 'Mozilla/5.0 (compatible; GTM/1.0; +https://github.com/meryemturkmen/gtm)'
 const MAX_BYTES = 300_000
 
 /** GET with a timeout and a body cap. Throws on network errors, not on HTTP status. */

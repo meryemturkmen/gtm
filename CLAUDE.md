@@ -1,6 +1,6 @@
-# GMT — working rules for AI agents
+# GTM — working rules for AI agents
 
-GMT is an open-source Go-to-Market toolkit: Clay-style enrichment tables and a HubSpot-style CRM core on one data model.
+GTM is an open-source Go-to-Market toolkit: Clay-style enrichment tables and a HubSpot-style CRM core on one data model.
 Read `docs/LOG.md` (decisions, state) before changing anything. Append to it when you decide something.
 
 ## Style

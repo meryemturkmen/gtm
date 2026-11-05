@@ -4,7 +4,7 @@
 
 ## Context
 
-GMT needs auth, a relational store with realtime updates, background jobs for enrichment, and a public API. It must run for free and be reproducible from the repo.
+GTM needs auth, a relational store with realtime updates, background jobs for enrichment, and a public API. It must run for free and be reproducible from the repo.
 
 ## Decision
 
