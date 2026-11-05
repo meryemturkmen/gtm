@@ -7,7 +7,7 @@ import { useActivities, useCompany, useCompanyDeals, useContacts, useStages } fr
 import { enqueue, useOpenJobs, useProperties, useRealtime } from '../../lib/queries'
 import { Cell, ScoreMeter } from '../../components/Cell'
 import { RunSheet } from '../../components/RunSheet'
-import { Logo } from './companies'
+import { Logo } from '../../components/Logo'
 import type { Property } from '../../../supabase/functions/_shared/types.ts'
 
 export const Route = createFileRoute('/_app/companies_/$id')({ component: CompanyPage })
