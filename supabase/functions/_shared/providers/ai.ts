@@ -17,7 +17,7 @@ const SYSTEM = 'You are a precise B2B go-to-market research assistant. Use only 
 export const ai: Provider = {
   name: 'ai',
   fields: [],
-  cacheHours: 24 * 7,
+  cacheHours: 0, // AI columns run on demand; a changed prompt or ICP must produce a fresh answer
   async run(ctx) {
     const cfg = ctx.property.config as AiConfig
     const base = ctx.env.QWEN_BASE_URL, key = ctx.env.QWEN_API_KEY, model = ctx.env.QWEN_MODEL

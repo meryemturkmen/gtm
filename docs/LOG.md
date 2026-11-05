@@ -33,3 +33,4 @@ Decisions and state, newest first. Keep entries short.
 ## 2026-11-05
 - Cloudflare Pages project `gtm-toolkit` created with wrangler (the dashboard Git integration is not needed); `deploy-pages.yml` builds and uploads on push. Odoo containers removed from the dev machine, local Supabase has the memory it needs again.
 - Renamed to GTM (Go-to-Market): repo `meryemturkmen/gtm`, Pages project `gtm-toolkit`, webhook header `x-gtm-signature`, API key prefix `gtm_` via migration 20261105000001. Migrations already applied were not edited.
+- AI runs are no longer cached (were 7 days): AI columns are on demand, and a changed prompt or ICP must re-score. Default ICP prompt treats unknown facts as neutral (migration 20261105000002).
